@@ -1,0 +1,3 @@
+# DocumentRedactorapp
+
+pip install spacy
