@@ -16,39 +16,53 @@ HTML_WRAPPER = """<div style="overflow-x:auto; border: 1px solid #e6e9ef; border
 """
 file_name = 'yourdocument' + timestr + '.txt'
 #function to Sanitize and Redact
+# def sanitize_names(text):
+#     doc = nlp(text)
+#     with doc.retokenize() as retokenizer:
+#         for ent in doc.ents:
+#             retokenizer.merge(ent)
+#     tokens = map(replace_name_with_placeholder, doc)
+#     return " ".join(tokens)
 def sanitize_names(text):
+
+    empty_space = []
     doc = nlp(text)
-    with doc.retokenize() as retokenizer:
-        for ent in doc.ents:
-            retokenizer.merge(ent)
-    tokens = map(replace_name_with_placeholder, doc)
-    return " ".join(tokens)
+    for new in doc:
+        if new.ent_type_ == 'PERSON':
+            empty_space.append('[Redacted]')
+        else:
+            empty_space.append(new)
+    return ' '.join(map(str,empty_space))
 
 def sanitize_places(text):
+    empty_space = []
     doc = nlp(text)
-    with doc.retokenize() as retokenizer:
-        for ent in doc.ents:
-            retokenizer.merge(ent)
-
-    tokens = map(replace_place_with_placeholder, doc)
-    return " ".join(tokens)
+    for new in doc:
+        if new.ent_type_ == 'GPE':
+            empty_space.append('[Redacted]')
+        else:
+            empty_space.append(new)
+    return ' '.join(map(str,empty_space))
 
 def sanitize_org(text):
+    empty_space = []
     doc = nlp(text)
-    with doc.retokenize() as retokenizer:
-        for ent in doc.ents:
-            retokenizer.merge(ent)
-    tokens = map(replace_org_with_placeholder, doc)
-    return " ".join(tokens)
+    for new in doc:
+        if new.ent_type_ == 'ORG':
+            empty_space.append('[Redacted]')
+        else:
+            empty_space.append(new)
+    return ' '.join(map(str,empty_space))
 
 def sanitize_date(text):
+    empty_space = []
     doc = nlp(text)
-    redacted_sentences = []
-    with doc.retokenize() as retokenizer:
-        for ent in doc.ents:
-            retokenizer.merge(ent)
-    tokens = map(replace_date_with_placeholder, doc)
-    return " ".join(tokens)
+    for new in doc:
+        if new.ent_type_ == 'DATE':
+            empty_space.append('[Redacted]')
+        else:
+            empty_space.append(new)
+    return ' '.join(map(str,empty_space))
 
 
     #         if token.ent_type =='GPE':
@@ -58,29 +72,13 @@ def sanitize_date(text):
     #     return "".join(redacted_sentences)        
 
 
-def replace_name_with_placeholder(token):
-     if token.ent_iob != 0 and token.ent_type_ == "PERSON":
-         return "[REDACTED] "
-     else:
-         return token.text  
+# def replace_name_with_placeholder(token):
+#      if token.ent_iob != 0 and token.ent_type_ == "PERSON":
+#          return "[REDACTED] "
+#      else:
+#          return token.text  
 
-def replace_place_with_placeholder(token):
-     if token.ent_iob != 0 and token.ent_type_ == "GPE":
-         return "[REDACTED] "
-     else:
-         return token.text  
 
-def replace_org_with_placeholder(token):
-     if token.ent_iob != 0 and token.ent_type_ == "ORG":
-         return "[REDACTED] "
-     else:
-         return token.text  
-
-def replace_date_with_placeholder(token):
-     if token.ent_iob != 0 and token.ent_type_ == "DATE":
-         return "[REDACTED] "
-     else:
-         return token.text  
 # Function display Entities
 
 def render_entities(rawtext):
@@ -101,7 +99,7 @@ def make_downloadable(filename):
 
     readfile = open(os.path.join("downloads",filename)).read()
     b64 = base64.b64encode(readfile.encode()).decode()
-    st.write(readfile)
+    #st.write(readfile)
     href = '<a href="data:file/readfile;base64,{}">Download File</a>(right click to save as file name)'.format(b64)
     return href
 
@@ -162,6 +160,7 @@ def main():
                 file_to_download = writetofile(result,file_name)
                 st.info("Saved Result as :: {}".format(file_name))
                 d_link = make_downloadable(file_to_download)
+                
                 st.markdown(d_link,unsafe_allow_html=True)
  
                    
